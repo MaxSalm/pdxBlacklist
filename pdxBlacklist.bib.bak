@@ -1,0 +1,31 @@
+% Encoding: UTF-8
+
+@Article{Goodstadt2010,
+  author          = {Goodstadt, Leo},
+  title           = {Ruffus: a lightweight Python library for computational pipelines.},
+  journal         = {Bioinformatics (Oxford, England)},
+  year            = {2010},
+  volume          = {26},
+  pages           = {2778--2779},
+  month           = nov,
+  issn            = {1367-4811},
+  __markedentry   = {[u6025151:6]},
+  abstract        = {Computational pipelines are common place in scientific research. However, most of the resources for constructing pipelines are heavyweight systems with graphical user interfaces. Ruffus is a library for the creation of computational pipelines. Its lightweight and unobtrusive design recommends it for use even for the most trivial of analyses. At the same time, it is powerful enough to have been used for complex workflows involving more than 50 interdependent stages. Ruffus is written in python. Source code, a short tutorial, examples and a comprehensive user manual are freely available at http://www.ruffus.org.uk. The example program is available at http://www.ruffus.org.uk/examples/bioinformatics},
+  citation-subset = {IM},
+  completed       = {2011-02-16},
+  country         = {England},
+  created         = {2010-10-22},
+  doi             = {10.1093/bioinformatics/btq524},
+  issn-linking    = {1367-4803},
+  issue           = {21},
+  keywords        = {Computational Biology, methods; Databases, Factual; Internet; Software},
+  nlm-id          = {9808944},
+  owner           = {NLM},
+  pii             = {btq524},
+  pmid            = {20847218},
+  pubmodel        = {Print-Electronic},
+  pubstatus       = {ppublish},
+  revised         = {2016-11-22},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}

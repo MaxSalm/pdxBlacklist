@@ -1,0 +1,70 @@
+---
+title: "pdxBlacklist"
+author: "Max Salm"
+date: '`r paste("Version 1.0:", format(Sys.time(), "%d %B, %Y"))`'
+output:
+  html_document:
+    number_sections: yes
+    theme: spacelab
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+csl: nature.csl
+bibliography: pdxBlacklist.bib  
+---
+
+
+pdxBlacklist
+========
+
+pdxBlacklist will solve your problem of where to start with documentation,
+by providing a basic explanation of how to do it easily.
+
+Look how easy it is to use:
+
+    import project
+    # Get your stuff done
+    project.do_stuff()
+
+Features
+--------
+
+- Be awesome
+- Make things faster
+
+Installation
+------------
+The scripts in this project have been developed and tested in Ubuntu 14.04.5 LTS (GNU/Linux 3.19.0-74-generic x86_64).
+
+Install `pdxBlacklist` by running:
+
+    **0_setup_bcbio.sh**
+
+
+
+
+Contribute
+----------
+
+- Issue Tracker: github.com/$project/$project/issues
+- Source Code: github.com/$project/$project
+
+Support
+-------
+
+If you are having issues, please let us know.
+
+License
+-------
+
+The project is licensed under the GPL license.
+
+
+References
+
+
+
+
+
