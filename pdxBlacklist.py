@@ -221,7 +221,7 @@ def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
 
 @follows(sortBAM)
 @transform(sortBAM, suffix(".sorted.bam"), ".fq")
-def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][1]):
+def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][0]):
     '''
     Conversion utility for extracting FASTQ records from sequence alignments in BAM format.
     There are a host of different methods, only a few of which are implemented here.
@@ -266,8 +266,8 @@ def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
         output = p2.communicate()[0]
         ## Log
-        run_logger.info(' '.join(p1))
-        run_logger.info(' '.join(p2))
+        #run_logger.info(' '.join(p1))
+        #run_logger.info(' '.join(p2))
         time_stop = timeit.default_timer()
         run_logger.info('Time(s):' + str(time_stop - time_start))
 
