@@ -38,7 +38,8 @@ parser.add_argument('--strain',   help='Mouse Genome Project strain (see ftp://f
                     type=str)
 parser.add_argument('--cores',   default = 8, help='Number of cores to use for bcbio [integer]',
                     type=int)
-
+parser.add_argument('--debug',  default = False, help='Debugging mode [boolean]',
+                    type=bool)
 
 # Retrieve options from command line
 args = parser.parse_args()
@@ -74,12 +75,12 @@ if not os.path.exists(WORKING_DIR):
 os.chdir(WORKING_DIR)
 TMP_DIR = tempfile.gettempdir()  # identifies the current temporary directory
 
-## System memory
-
+# A list of configurations
 CONFIG = dict(STRAIN = args.strain,
                 ALIGNER = 'bwa',
                 GENOME = 'hg19',
                 CORES= args.cores,
+                bam2fastq = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][1],
                 MAX_RAM='25G')
 
 if DEBUG:
@@ -104,6 +105,7 @@ run_logger.info('\n\n------SETUP------\n')
 run_logger.info('Mouse strain = ' + CONFIG['STRAIN'])
 run_logger.info('Read aligner = ' + CONFIG['ALIGNER'])
 run_logger.info('Target genome = ' + CONFIG['GENOME'])
+run_logger.info('BAM to FASTQ converter = ' + CONFIG['bam2fastq'])
 run_logger.info('\n\n------LOG------\n')
 
 ##################################
@@ -210,18 +212,21 @@ def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
            '-p',
            '-o', output_file,
            input_file]
-
     os.system(' '.join(cmd))
     ## Log
     run_logger.info(' '.join(cmd))
     time_stop = timeit.default_timer()
     run_logger.info('Time(s):' + str(time_stop - time_start))
-
-
+    ## Test output files exists
+    if os.path.isfile(output_file):
+        print 'Sorted BAM created.\n'
+    else:
+        print 'Sorted BAM not found.\n'
+        sys.exit(1)
 
 @follows(sortBAM)
 @transform(sortBAM, suffix(".sorted.bam"), ".fq")
-def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][0]):
+def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
     '''
     Conversion utility for extracting FASTQ records from sequence alignments in BAM format.
     There are a host of different methods, only a few of which are implemented here.
@@ -273,6 +278,16 @@ def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools
 
     else:
         print 'No valid method selected for FASTQ extraction.\n'
+        sys.exit(1)
+
+
+    ## Test output files exists
+    f1 = output_files.replace('.fq', '.1.fq')
+    f2 = output_files.replace('.fq', '.2.fq')
+    if os.path.isfile(f1) and os.path.isfile(f2):
+        print 'FASTQ files created.\n'
+    else:
+        print 'FASTQ files not found.\n'
         sys.exit(1)
 
     ## Write a sentinel file to disk, rather than using split()
@@ -381,6 +396,15 @@ def bcbioRun(input_file, output_file, cores = CONFIG['CORES']):
     text_file.write("BCBIO has run.\n")
     text_file.close()
     print 'bcbio run complete.\n'
+    ## Test output files exists
+    the_vcf = os.path.join(WORKING_DIR, CONFIG['STRAIN'], 'final', CONFIG['STRAIN'],
+                           CONFIG['STRAIN'] + '-vardict.vcf.gz')
+    the_bam = os.path.join(WORKING_DIR, CONFIG['STRAIN'], 'final', CONFIG['STRAIN'], CONFIG['STRAIN'] + '-ready.bam')
+    if os.path.isfile(the_vcf) and os.path.isfile(the_bam):
+        print 'Re-aligned BAM and VCF created.\n'
+    else:
+        print 'BCBIO output not found.\n'
+        sys.exit(1)
 
 ################
 ### Clean-up ###
