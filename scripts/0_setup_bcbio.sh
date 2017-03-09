@@ -12,4 +12,5 @@ wget https://raw.github.com/chapmanb/bcbio-nextgen/master/scripts/bcbio_nextgen_
 python bcbio_nextgen_install.py $ROOT/bcbio --genomes $GENOME --aligners $ALIGNER --distribution ubuntu --tooldir=$ROOT/bcbio
 bcbio_nextgen.py upgrade -u stable 
 
-
+### Ruffus
+pip install ruffus

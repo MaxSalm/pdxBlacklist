@@ -266,7 +266,8 @@ def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
         output = p2.communicate()[0]
         ## Log
-        run_logger.info(' '.join(cmd))
+        run_logger.info(' '.join(p1))
+        run_logger.info(' '.join(p2))
         time_stop = timeit.default_timer()
         run_logger.info('Time(s):' + str(time_stop - time_start))
 
