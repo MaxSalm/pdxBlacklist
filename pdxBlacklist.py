@@ -13,6 +13,7 @@ __author__ = 'Max Salm'
 import argparse
 import sys
 import os
+import subprocess
 import tempfile
 from datetime import datetime
 import timeit
@@ -74,13 +75,12 @@ os.chdir(WORKING_DIR)
 TMP_DIR = tempfile.gettempdir()  # identifies the current temporary directory
 
 ## System memory
-MAX_RAM = '20G'
-
 
 CONFIG = dict(STRAIN = args.strain,
                 ALIGNER = 'bwa',
                 GENOME = 'hg19',
-                CORES= args.cores)
+                CORES= args.cores,
+                MAX_RAM='25G')
 
 if DEBUG:
     CONFIG['STRAIN'] = 'HG04093.chrom20'
@@ -142,8 +142,13 @@ if bam_in not in files_on_server:
 ftp.sendcmd("TYPE i")    # Switch to Binary mode
 file_size = ftp.size(bam_in)   # Get size of file
 ftp.sendcmd("TYPE i")    # Switch to ASCII mode
-local_file_info = os.path.getsize(bam_in)
-test = os.path.isfile(bam_in) and local_file_info == file_size
+
+test = False
+if os.path.isfile(bam_in):
+    local_file_info = os.path.getsize(bam_in)
+    if local_file_info == file_size:
+        test = True
+
 if test:
     print 'File on disk: will not be re-downloaded.\n'
 else:
@@ -166,7 +171,23 @@ else:
 ftp.quit() # close FTP connection
 
 
+### Misc helper functions
+def installBBMap():
+    '''
+    Install the BBMap package
+    :return:
+    '''
+    existing_installation = os.path.join(WORKING_DIR, 'bbmap')
 
+    if not os.path.exists(existing_installation):
+        target_file = 'BBMap_36.99.tar.gz'
+        cmd = ['wget', 'https://sourceforge.net/projects/bbmap/files/' + target_file]
+        subprocess.call(cmd)
+        cmd = ['tar', '-xvzf', target_file]
+        subprocess.call(cmd)
+        os.remove(target_file)
+    else:
+        print 'BBMap installation found.\n'
 
 
 ########################
@@ -185,7 +206,7 @@ def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
            '-t', str(cores),
            '-F', '"proper_pair"',
            '-l', '1',
-           '-m', MAX_RAM,
+           '-m', CONFIG['MAX_RAM'],
            '-p',
            '-o', output_file,
            input_file]
@@ -200,12 +221,18 @@ def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
 
 @follows(sortBAM)
 @transform(sortBAM, suffix(".sorted.bam"), ".fq")
-def bam2fastq(input_file, output_files, method = ['bedtools', 'samtools'][0]):
+def bam2fastq(input_file, output_files, method = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][1]):
     '''
-    bedtools bamtofastq is a conversion utility for extracting FASTQ records from sequence alignments in BAM format.
+    Conversion utility for extracting FASTQ records from sequence alignments in BAM format.
+    There are a host of different methods, only a few of which are implemented here.
+    E.g.
+    http://genome.sph.umich.edu/wiki/BamUtil:_bam2FastQ
+    https://github.com/berguner/bam2fastq
+
     '''
 
     if method == 'bedtools':
+        print 'Extracting FASTQ using BEDTools.\n'
         time_start = timeit.default_timer()
         cmd = ['bedtools', 'bamtofastq',
                '-i', input_file,
@@ -216,30 +243,43 @@ def bam2fastq(input_file, output_files, method = ['bedtools', 'samtools'][0]):
         run_logger.info(' '.join(cmd))
         time_stop = timeit.default_timer()
         run_logger.info('Time(s):' + str(time_stop - time_start))
-        ## Write a sentinel file to disk, rather than using split()
-        text_file = open(output_files, "w")
-        text_file.write("Placeholder file.\n")
-        text_file.close()
 
-    elif method == "samtools":
+
+    elif method == "BBMap":
+        # Meant to be much faster: https://www.biostars.org/p/223625/
+        print 'Extracting FASTQ using BBMap.\n'
         time_start = timeit.default_timer()
-        cmd = ['samtools', 'bamtofastq',
-               '-i', input_file,
-               '-fq', output_files.replace('.fq', '.1.fq'),
-               '-fq2', output_files.replace('.fq', '.2.fq')]
-        os.system(' '.join(cmd))
+        installBBMap() # Test BBMap installation
+        reformat_script = os.path.join(WORKING_DIR, 'bbmap', 'reformat.sh')
+        p1 = [reformat_script,
+         'in=' + input_file,
+          'out=' + 'stdout.fq',
+           'primaryonly']
+        p2 = [reformat_script,
+              'in=' + 'stdin.fq',
+              'out1=' + output_files.replace('.fq', '.1.fq'),
+              'out2=' + output_files.replace('.fq', '.2.fq'),
+              'interleaved',
+              'addcolon']
+        p1 = subprocess.Popen(p1, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(p2, stdin=p1.stdout, stdout=subprocess.PIPE)
+        p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+        output = p2.communicate()[0]
         ## Log
         run_logger.info(' '.join(cmd))
         time_stop = timeit.default_timer()
         run_logger.info('Time(s):' + str(time_stop - time_start))
-        ## Write a sentinel file to disk, rather than using split()
-        text_file = open(output_files, "w")
-        text_file.write("Placeholder file.\n")
-        text_file.close()
 
     else:
         print 'No valid method selected for FASTQ extraction.\n'
         sys.exit(1)
+
+    ## Write a sentinel file to disk, rather than using split()
+    text_file = open(output_files, "w")
+    text_file.write("Placeholder file.\n")
+    text_file.close()
+
+
 
 #################
 ### Run BCBIO ###
