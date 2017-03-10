@@ -51,8 +51,6 @@ The project is licensed under the GPL license.
 Citation
 --------
 
-Paper in press
-
 References
 ----------
 

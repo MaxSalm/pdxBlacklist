@@ -3,3 +3,7 @@ mse_blacklist/
 pdxBlacklist.bib
 7_mouse_alignment.sh
 7_mouse_blacklist.Rmd
+nature.csl
+pdxBlacklist.bib.bak
+pdxBlacklist.bib.sav
+README.Rmd
