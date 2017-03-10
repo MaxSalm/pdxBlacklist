@@ -63,7 +63,7 @@ else:
 ########################
 ### Global variables ###
 ########################
-DEBUG=True
+DEBUG = args.debug
 
 if DEBUG:
     print '\n\n\nWARNING: DEBUGGING FLAG ACTIVE!!!\n\n\n'
@@ -414,7 +414,8 @@ def bcbioRun(input_file, output_file, cores = CONFIG['CORES']):
 @transform(bcbioRun, suffix(".tmp"), ".tmp1")
 def filterOutputBAM(input_file, output_file):
     '''
-    Filter the BCBIO generated BAM using the generated VCF
+    Filter the BCBIO generated BAM using the generated VCF.
+    TODO: This could be improved using https://github.com/walaj/VariantBam
 
     :return:
     '''
