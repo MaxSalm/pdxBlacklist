@@ -364,7 +364,10 @@ def bcbioConfig(input_file, output_file):
     ## Move/link config file
     src = os.path.join(WORKING_DIR, output_file)
     dest = os.path.join(WORKING_DIR, CONFIG['STRAIN'], 'config', output_file)
-    os.symlink(src, dest )
+    if os.path.isfile(dest):
+        os.remove(dest)
+
+    os.symlink(src, dest)
 
 
 
