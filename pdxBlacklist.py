@@ -327,7 +327,7 @@ def bcbioConfig(input_file, output_file):
            '- algorithm:',
            '    aligner: ' + CONFIG['ALIGNER'],
            '    save_diskspace: true',
-           '    mark_duplicates: true',
+           '    mark_duplicates: false',
            '    realign: false',
            '    recalibrate: false',
            '    remove_lcr: true',
