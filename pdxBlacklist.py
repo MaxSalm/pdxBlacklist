@@ -80,7 +80,7 @@ CONFIG = dict(STRAIN = args.strain,
                 ALIGNER = 'bwa',
                 GENOME = 'hg19',
                 CORES= args.cores,
-                bam2fastq = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][1],
+                bam2fastq = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][0],
                 MAX_RAM='25G')
 
 if DEBUG:
@@ -253,6 +253,8 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
     elif method == "BBMap":
         # Meant to be much faster: https://www.biostars.org/p/223625/
         print 'Extracting FASTQ using BBMap.\n'
+        print 'Method aborted - the Mouse Genome Project files use an old SAM specification that is not supported by BBMap. Please ammend switch in config.'
+        sys.exit(1)
         time_start = timeit.default_timer()
         installBBMap() # Test BBMap installation
         reformat_script = os.path.join(WORKING_DIR, 'bbmap', 'reformat.sh')
@@ -367,7 +369,7 @@ def bcbioConfig(input_file, output_file):
 
 
 @follows(bcbioConfig)
-@transform(bcbioConfig, suffix(".yml"), ".tmp")
+@transform(bcbioConfig, suffix(".yml"), ".bcbio.log")
 def bcbioRun(input_file, output_file, cores = CONFIG['CORES']):
     '''
     Execute the BCBIO pipeline
@@ -411,7 +413,7 @@ def bcbioRun(input_file, output_file, cores = CONFIG['CORES']):
 ################
 
 @follows(bcbioRun)
-@transform(bcbioRun, suffix(".tmp"), ".tmp1")
+@transform(bcbioRun, suffix(".bcbio.log"), ".filter.log")
 def filterOutputBAM(input_file, output_file):
     '''
     Filter the BCBIO generated BAM using the generated VCF.
@@ -482,4 +484,4 @@ def tidyUp():
 
 if __name__ == '__main__':
     pipeline_run(logger=run_logger)
-    # pipeline_printout_graph(open("flowchart.svg", "w"), "svg", [sortBam])
+    # pipeline_printout_graph(open("flowchart.svg", "w"), "svg")
