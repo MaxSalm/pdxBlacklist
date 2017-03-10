@@ -3,17 +3,8 @@ title: "pdxBlacklist"
 author: "Max Salm"
 date: '`r paste("Version 1.0:", format(Sys.time(), "%d %B, %Y"))`'
 output:
-  word_document:
-    toc: yes
-    toc_depth: '2'
-  pdf_document:
-    toc: yes
-  html_document:
-    number_sections: yes
-    theme: spacelab
-    toc: yes
-    toc_depth: 2
-    toc_float: yes
+  md_document:
+    variant: markdown_github
 csl: nature.csl
 bibliography: pdxBlacklist.bib
 ---
