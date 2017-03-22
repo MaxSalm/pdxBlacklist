@@ -81,7 +81,8 @@ CONFIG = dict(STRAIN = args.strain,
                 GENOME = 'hg19',
                 CORES= args.cores,
                 bam2fastq = ['bedtools', 'BBMap', 'samtools', 'picard', 'biobambam2', 'bamUtil'][0],
-                MAX_RAM='25G')
+                MAX_RAM='25G',
+              USE_FTP = False)
 
 if DEBUG:
     CONFIG['STRAIN'] = 'HG04093.chrom20'
@@ -119,6 +120,7 @@ run_logger.info('\n\n------LOG------\n')
 
 ## Download section
 if not DEBUG:
+    src_dir = 'ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/'
     ftp = ftplib.FTP('ftp-mouse.sanger.ac.uk')  # Open FTP connection
     ftp.login()                                 # Anonymous login
     ftp.cwd('REL-1604-BAM')                     # Change to relevant directory
@@ -127,6 +129,7 @@ if not DEBUG:
     # files = ftp.retrlines('LIST')               # list directory content securely, returns to stdout
 
 else:
+    src_dir = 'ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/HG04093/alignment/'
     ftp = ftplib.FTP('ftp.1000genomes.ebi.ac.uk')  # Open FTP connection
     ftp.login()                                 # Anonymous login
     ftp.cwd('vol1/ftp/phase3/data/HG04093/alignment/')                     # Change to relevant directory
@@ -151,24 +154,44 @@ if os.path.isfile(bam_in):
     if local_file_info == file_size:
         test = True
 
-if test:
-    print 'File on disk: will not be re-downloaded.\n'
-else:
-    print 'Downloading: ' + bam_in + '\n'
-    ## Get BAI
-    bai_file_local = open(bai_in, "wb")         # Open connection on disk
-    cmd = 'RETR ' + bai_in                      # Retrieve command
-    ftp.retrbinary(cmd, bai_file_local.write)   # retrieve remote file, and write to disk
-    bai_file_local.close()                      # Close connection on disk
-    run_logger.info('Downloaded:' + bai_in)
+## Continue using FTP for download
+if CONFIG['USE_FTP']:
+    # Use FTP to download files
+    if test:
+        print 'File on disk: will not be re-downloaded.\n'
+    else:
+        print 'Downloading: ' + bam_in + '\n'
+        ## Get BAI
+        bai_file_local = open(bai_in, "wb")         # Open connection on disk
+        cmd = 'RETR ' + bai_in                      # Retrieve command
+        ftp.retrbinary(cmd, bai_file_local.write)   # retrieve remote file, and write to disk
+        bai_file_local.close()                      # Close connection on disk
+        run_logger.info('Downloaded:' + bai_in)
 
-    ## Get BAM
-    bam_file_local = open(bam_in, "wb")         # Open connection on disk
-    cmd = 'RETR ' + bam_in                      # Retrieve command
-    ftp.retrbinary(cmd, bam_file_local.write)   # retrieve remote file, and write to disk
-    bam_file_local.close()                      # Close connection on disk
-    run_logger.info('Downloaded:' + bam_in)
-    print 'Download complete\n'
+        ## Get BAM
+        bam_file_local = open(bam_in, "wb")         # Open connection on disk
+        cmd = 'RETR ' + bam_in                      # Retrieve command
+        ftp.retrbinary(cmd, bam_file_local.write)   # retrieve remote file, and write to disk
+        bam_file_local.close()                      # Close connection on disk
+        run_logger.info('Downloaded:' + bam_in)
+        print 'Download complete\n'
+else:
+    # Use wget to download files - this won't hang for larger files
+    if test:
+        print 'File on disk: will not be re-downloaded.\n'
+    else:
+        print 'Downloading: ' + bam_in + '\n'
+        ## Get BAI
+        cmd = ['wget', src_dir + bai_in]
+        subprocess.call(cmd)
+        run_logger.info('Downloaded:' + bai_in)
+
+        ## Get BAM
+        cmd = ['wget', src_dir + bam_in]
+        subprocess.call(cmd)
+        run_logger.info('Downloaded:' + bam_in)
+        print 'Download complete\n'
+
 
 ftp.quit() # close FTP connection
 
@@ -327,10 +350,10 @@ def bcbioConfig(input_file, output_file):
            '- algorithm:',
            '    aligner: ' + CONFIG['ALIGNER'],
            '    save_diskspace: true',
-           '    mark_duplicates: false',
+           '    mark_duplicates: true',
            '    realign: false',
            '    recalibrate: false',
-           '    remove_lcr: true',
+           '    remove_lcr: false',
            '    platform: illumina',
            '    quality_format: standard',
            '    # svcaller: [cnvkit, lumpy, delly]',
