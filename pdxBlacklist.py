@@ -40,6 +40,8 @@ parser.add_argument('--cores',   default = 8, help='Number of cores to use for b
                     type=int)
 parser.add_argument('--debug',  default = False, help='Debugging mode [boolean]',
                     type=bool)
+parser.add_argument('--config',  default = None, help='Filename of an optional BCBIO config file: for details, see http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html',
+                    type=bool)
 
 # Retrieve options from command line
 args = parser.parse_args()
@@ -52,10 +54,21 @@ strains = ['129P2_OlaHsd', '129S1_SvImJ', '129S5SvEvBrd', 'AKR_J', 'A_J', 'BALB_
            'NZO_HlLtJ', 'NZW_LacJ', 'PWK_PhJ', 'RF_J', 'SEA_GnJ', 'SPRET_EiJ', 'ST_bJ', 'WSB_EiJ', 'ZALENDE_EiJ',
            'JF1_MsJ', 'LG_J', 'SJL_J', 'SM_J']
 
-if args.strain not in strains:
+if args.strain not in strains and not args.debug:
     print 'Strain identifier not found...Please select one of the following:\n'
     print ', '.join(strains)
     sys.exit(1)
+
+elif args.strain not in strains and args.debug:
+    print '\n\n\nWARNING: DEBUGGING FLAG ACTIVE!!!\n\n\n'
+    print 'Analysing test data: HG04093.chrom20'
+    args.strain = 'HG04093.chrom20'
+
+elif args.strain in strains and args.debug:
+    print '\n\n\nWARNING: DEBUGGING FLAG ACTIVE!!!\n\n\n'
+    print 'Analysing test data: HG04093.chrom20'
+    args.strain = 'HG04093.chrom20'
+
 else:
     print('Processing strain: ' + args.strain)
 
@@ -63,12 +76,8 @@ else:
 ########################
 ### Global variables ###
 ########################
-DEBUG = args.debug
 
-if DEBUG:
-    print '\n\n\nWARNING: DEBUGGING FLAG ACTIVE!!!\n\n\n'
-
-WORKING_DIR = os.path.expanduser("~/pdxBlacklist")
+WORKING_DIR = os.path.expanduser("~/pdxBlacklist_output")
 if not os.path.exists(WORKING_DIR):
     os.makedirs(WORKING_DIR)
 
@@ -84,8 +93,6 @@ CONFIG = dict(STRAIN = args.strain,
                 MAX_RAM='25G',
               USE_FTP = False)
 
-if DEBUG:
-    CONFIG['STRAIN'] = 'HG04093.chrom20'
 
 
 ####################
@@ -112,6 +119,7 @@ run_logger.info('\n\n------LOG------\n')
 ##################################
 ### Retrieve external WGS data ###
 ##################################
+from ruffus import *  ## Pipeline manager, http://www.ruffus.org.uk/index.html
 # TODO: Add file download step to Rufus
 ## Download the entire BAM, BAI and MD5
 # TODO: locus specific queries - Use pysam/samtools
@@ -119,7 +127,7 @@ run_logger.info('\n\n------LOG------\n')
 
 
 ## Download section
-if not DEBUG:
+if not args.debug:
     src_dir = 'ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/'
     ftp = ftplib.FTP('ftp-mouse.sanger.ac.uk')  # Open FTP connection
     ftp.login()                                 # Anonymous login
@@ -214,11 +222,42 @@ def installBBMap():
     else:
         print 'BBMap installation found.\n'
 
+def installFastQValidator():
+    '''
+    Install the FatqValidator package http://genome.sph.umich.edu/wiki/FastQValidator
+    :return:
+    '''
+    existing_installation = os.path.join(WORKING_DIR, 'fastQValidator_0.1.1')
+
+    if not os.path.exists(existing_installation):
+        target_file = 'FastQValidator.0.1.1.tgz'
+        cmd = ['wget', 'http://genome.sph.umich.edu/w/images/3/39/' +  target_file]
+        subprocess.call(cmd)
+        cmd = ['tar', '-xvzf', target_file]
+        subprocess.call(cmd)
+        os.remove(target_file)
+
+    else:
+        print 'FastQValidator installation found.\n'
+
+
+
+
+def BAM2FASTQ(input_file = bam_in):
+    '''
+    Extract paired FASTQ records from a BAM.
+    :return:
+    '''
+    import pysam
+    samfile = pysam.AlignmentFile(bam_in, "rb") # Open file handle
+    # Iterate through all reads
+
+
+
 
 ########################
 ### Convert to FASTQ ###
 ########################
-from ruffus import *  ## Pipeline manager, http://www.ruffus.org.uk/index.html
 @transform(bam_in, suffix(".bam"), ".sorted.bam")
 def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
     '''
@@ -256,7 +295,6 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
     E.g.
     http://genome.sph.umich.edu/wiki/BamUtil:_bam2FastQ
     https://github.com/berguner/bam2fastq
-
     '''
 
     if method == 'bedtools':
@@ -301,6 +339,10 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
         time_stop = timeit.default_timer()
         run_logger.info('Time(s):' + str(time_stop - time_start))
 
+    elif method == "BAM2FASTQ":
+        print 'Still in development!\n'
+        sys.exit(1)
+
     else:
         print 'No valid method selected for FASTQ extraction.\n'
         sys.exit(1)
@@ -321,11 +363,78 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
     text_file.close()
 
 
+### A FASTQ record parser by Heng Li - https://github.com/lh3/readfq
+def readfq(fp): # this is a generator function
+    last = None # this is a buffer keeping the last unprocessed line
+    while True: # mimic closure; is it a bad idea?
+        if not last: # the first record or a record following a fastq
+            for l in fp: # search for the start of the next record
+                if l[0] in '>@': # fasta/q header line
+                    last = l[:-1] # save this line
+                    break
+        if not last: break
+        name, seqs, last = last[1:].partition(" ")[0], [], None
+        for l in fp: # read the sequence
+            if l[0] in '@+>':
+                last = l[:-1]
+                break
+            seqs.append(l[:-1])
+        if not last or last[0] != '+': # this is a fasta record
+            yield name, ''.join(seqs), None # yield a fasta record
+            if not last: break
+        else: # this is a fastq record
+            seq, leng, seqs = ''.join(seqs), 0, []
+            for l in fp: # read the quality
+                seqs.append(l[:-1])
+                leng += len(l) - 1
+                if leng >= len(seq): # have read enough quality
+                    last = None
+                    yield name, seq, ''.join(seqs); # yield a fastq record
+                    break
+            if last: # reach EOF before reading enough quality
+                yield name, seq, None # yield a fasta record instead
+                break
+#
+# if __name__ == "__main__":
+#     import sys
+#     n, slen, qlen = 0, 0, 0
+#     for name, seq, qual in readfq(sys.stdin):
+#         n += 1
+#         slen += len(seq)
+#         qlen += qual and len(qual) or 0
+# print n, '\t', slen, '\t', qlen
+
+
+@follows(bam2fastq)
+@transform(bam2fastq, suffix(".fq"), ".check")
+def checkPairedFastq(input_file, output_file):
+    '''
+    TODO: Given a pair of four line fastq files, check:
+    [ ]      Check qual encoding
+    [ ]      Check DNA alphabet
+    [ ]     Output to tmp file
+    [ ]     Rename tmp file to input files
+
+    :return:
+    '''
+    f1 = os.path.join( WORKING_DIR, input_file.replace('.fq', '.1.fq') )
+    f2 = os.path.join( WORKING_DIR, input_file.replace('.fq', '.2.fq') )
+    k = 0
+    with open(f1) as LL, open(f2) as RR:
+        for x, y in zip(LL, RR):
+            k += 1
+            if k % 4 == 1:
+                if x.split("/")[0] != y.split("/")[0]:
+                    print("{0}\t{1}".format(x.strip(), y.strip()))
+                    sys.exit(10000)
+
+    print "All FASTQ names match in paired order.\n"
+
 
 #################
 ### Run BCBIO ###
 #################
-@follows(bam2fastq)
+@follows(checkPairedFastq)
 @transform(bam2fastq, suffix(".fq"), ".yml")
 def bcbioConfig(input_file, output_file):
     '''
@@ -488,11 +597,11 @@ def tidyUp():
     subfolders = ['config', 'work']
     for f in subfolders:
         directory = os.path.join(WORKING_DIR, CONFIG['STRAIN'], f)
-        if os.path.exists(directory) and not DEBUG:
+        if os.path.exists(directory) and not args.debug:
             shutil.rmtree(directory)
 
     ## Remove files
-    if not DEBUG:
+    if not args.debug:
         files_in_dir = os.listdir(WORKING_DIR)
         for f in files_in_dir:
             if CONFIG['STRAIN'] in f and not os.path.isdir(f):
