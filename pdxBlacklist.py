@@ -20,6 +20,8 @@ import timeit
 import ftplib
 # import psutil
 import ruffus
+from shutil import copyfile
+import multiprocessing
 
 
 #####################
@@ -36,18 +38,20 @@ parser = cmdline.get_argparse(description='Align mouse WSG data to the human gen
 # add your own command line options, to the existing ones
 parser.add_argument('--strain',   help='Mouse Genome Project strain (see ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/)[string]',
                     type=str)
-parser.add_argument('--cores',   default = 8, help='Number of cores to use for bcbio [integer]',
+parser.add_argument('--cores',   default = 1, help='Number of cores to use for bcbio [integer]',
                     type=int)
 parser.add_argument('--debug',  default = False, help='Debugging mode [boolean]',
                     type=bool)
-parser.add_argument('--config',  default = None, help='Filename of an optional BCBIO config file: for details, see http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html',
-                    type=bool)
+parser.add_argument('--config',  default = None, help='Full path to filename of an optional BCBIO config file: for details, see http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html',
+                    type=str)
 
 # Retrieve options from command line
 args = parser.parse_args()
 
-
-## Available strains at Mouse Genome Project
+###################
+### Gatekeepers ###
+###################
+## Available strains at Mouse Genome Project (2017)
 strains = ['129P2_OlaHsd', '129S1_SvImJ', '129S5SvEvBrd', 'AKR_J', 'A_J', 'BALB_cJ', 'BTBR_T__Itpr3tf_J', 'BUB_BnJ',
            'C3H_HeH', 'C3H_HeJ', 'C57BL_10J', 'C57BL_6NJ', 'C57BR_cdJ', 'C57L_J', 'C58_J', 'CAST_EiJ', 'CBA_J',
            'DBA_1J', 'DBA_2J', 'FVB_NJ', 'I_LnJ', 'KK_HiJ', 'LEWES_EiJ', 'LP_J', 'MOLF_EiJ', 'NOD_ShiLtJ', 'NZB_B1NJ',
@@ -71,6 +75,22 @@ elif args.strain in strains and args.debug:
 
 else:
     print('Processing strain: ' + args.strain)
+
+## Cores
+if args.cores > multiprocessing.cpu_count():
+    print('\n\n\n Option error, --cores: More cores requested than are detected on the machine:' + str(multiprocessing.cpu_count()) + '\n\n\n')
+    sys.exit(1)
+
+## Config
+if args.config is not None:
+    if not os.path.isfile(args.config):
+        print('\n\n\n Option error, --config: Config file not found. \n\n\n')
+        sys.exit(1)
+
+    if args.config == os.path.basename(args.config):
+        # Add path of dir to filename
+        args.config = os.path.realpath(args.config)
+
 
 
 ########################
@@ -487,6 +507,12 @@ def bcbioConfig(input_file, output_file):
     fo = open(output_file, 'w')
     fo.writelines('\n'.join(yml))
     fo.close()
+
+    # If a config file has been specified...
+    if args.config is not None:
+        print 'Copying pre-specified config file:' + args.config + '\n'
+        copyfile(args.config, output_file)  # copy file to target
+
     # Project directory structure
     subfolders = ['config', 'final', 'work']
     for f in subfolders:
