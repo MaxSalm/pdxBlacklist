@@ -15,17 +15,19 @@ To run the *pdxBlacklist* pipeline, execute the following:
 
     python pdxBlacklist.py --strain NOD_ShiLtJ
 
-where `--strain` specifies the mouse strain of interest. Please select from the following:
+where `--strain` specifies the mouse strain of interest. Please select from the following strain identifiers:
 
 `129P2_OlaHsd, 129S1_SvImJ, 129S5SvEvBrd, AKR_J, A_J, BALB_cJ, BTBR_T__Itpr3tf_J, BUB_BnJ, C3H_HeH, C3H_HeJ, C57BL_10J, C57BL_6NJ, C57BR_cdJ, C57L_J, C58_J, CAST_EiJ, CBA_J, DBA_1J, DBA_2J, FVB_NJ, I_LnJ, KK_HiJ, LEWES_EiJ, LP_J, MOLF_EiJ, NOD_ShiLtJ, NZB_B1NJ, NZO_HlLtJ, NZW_LacJ, PWK_PhJ, RF_J, SEA_GnJ, SPRET_EiJ, ST_bJ, WSB_EiJ, ZALENDE_EiJ, JF1_MsJ, LG_J, SJL_J, SM_J`
 
 Additional options include:
 
--   `--help` show this help message and exit
--   `--strain` Mouse Genome Project strain (see <ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/>)\[string\]
+-   `--help` show a help message and exit
+-   `--strain` Mouse Genome Project strain (see <ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/>) \[string\]
 -   `--cores` Number of cores to use for bcbio \[integer\]
 -   `--debug` Debugging mode \[boolean\]
 -   `--config` Full path to filename of an optional BCBIO config file: for details, see <http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html>
+
+The pipeline output is written to disk in VCF format to a directory labelled by strain within the `pdxBlacklist_output` directory in your home directory (see BCBIO for more details on output directory structure).
 
 Features
 --------
@@ -36,7 +38,7 @@ Features
 Installation
 ------------
 
-The scripts in this project have been developed and tested on an 8-core server with 30GB RAM running Ubuntu 14.04.5 LTS (GNU/Linux 3.19.0-74-generic x86\_64).
+The scripts in this project have been developed and tested on an 8-core server with 30GB RAM running Ubuntu 14.04.5 LTS (GNU/Linux 3.19.0-74-generic x86\_64). A full run of the *SM\_J* strain completed in approximately two days.
 
 To install the *pdxBlacklist* pipeline, please run the following:
 
