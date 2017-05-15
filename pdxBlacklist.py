@@ -29,7 +29,7 @@ import multiprocessing
 #####################
 
 import ruffus.cmdline as cmdline
-parser = cmdline.get_argparse(description='Align mouse WSG data to the human genome and call variants',
+parser = cmdline.get_argparse(description='Align mouse WGS data from the Mouse Genome Project to the human genome and catalog artefactual variants',
                               version = "v. 1.0",
                               ignored_args = ["--jobs", "--log_file",
                                               "--draw_graph_horizontally",
@@ -377,29 +377,6 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
         print 'FASTQ files not found.\n'
         sys.exit(1)
 
-    ## Test files are of equal length
-    t1 = ['wc', '-l', f1]
-    t1 = subprocess.check_output(t1)
-    t2 = ['wc', '-l', f2]
-    t2 = subprocess.check_output(t2)
-    if t1.split(' ')[0] != t2.split(' ')[0]:
-        print 'Error in bam2fastq(): Paired FASTQs are of different length.\n'
-        sys.exit(1)
-
-    ## Test FASTQ read identifiers match line by line
-    # pattern = "'{split($0,a," + ''"/"' + "); print a[1]}'"
-    cmd1 = "awk 'NR % 4 == 1' " + f1 + " | awk '{split($0,a,\"/\"); print a[1]}' > fastq.test1"
-    cmd2 = "awk 'NR % 4 == 1' " + f2 + " | awk '{split($0,a,\"/\"); print a[1]}' > fastq.test2"
-    cmd3 = ["diff", "-s", "fastq.test1", "fastq.test2"]
-    subprocess.check_call(cmd1, shell=True)
-    subprocess.check_call(cmd2, shell=True)
-    test = subprocess.check_output(cmd3)
-    if test != "Files fastq.test1 and fastq.test2 are identical":
-        print test
-        print "Error in bam2fastq(): FASTQ read identifiers do not match line by line"
-        sys.exit(1)
-
-
     ## Write a sentinel file to disk, rather than using split()
     text_file = open(output_files, "w")
     text_file.write("Placeholder file.\n")
@@ -463,19 +440,47 @@ def checkPairedFastq(input_file, output_file):
     print 'Checking that paired FASTQ records match.'
     f1 = os.path.join( WORKING_DIR, input_file.replace('.fq', '.1.fq') )
     f2 = os.path.join( WORKING_DIR, input_file.replace('.fq', '.2.fq') )
-    k = 0
-    record_count = 0
-    # Cycle through both files simultaneously
-    with open(f1) as file_one, open(f2) as file_two:
-        for line_one, line_two in zip(file_one, file_two):
-            k += 1
-            if k % 4 == 1:
-                record_count += 1
-                if line_one.split("/")[0] != line_two.split("/")[0]:
-                    print("{0}\t{1}".format(line_one.strip(), line_two.strip()))
-                    sys.exit(10000)
 
-    print "All FASTQ names match in paired order.\n"
+    ## Test files are of equal length
+    t1 = ['wc', '-l', f1]
+    t1 = subprocess.check_output(t1)
+    t2 = ['wc', '-l', f2]
+    t2 = subprocess.check_output(t2)
+    if t1.split(' ')[0] != t2.split(' ')[0]:
+        print 'Error in checkPairedFastq(): Paired FASTQs are of different length.\n'
+        sys.exit(1)
+    else:
+        print 'FASTQ files are of equal length.'
+
+    ## Test FASTQ read identifiers match line by line
+    # pattern = "'{split($0,a," + ''"/"' + "); print a[1]}'"
+    cmd1 = "awk 'NR % 4 == 1' " + f1 + " | awk '{split($0,a,\"/\"); print a[1]}' > fastq.test1"
+    cmd2 = "awk 'NR % 4 == 1' " + f2 + " | awk '{split($0,a,\"/\"); print a[1]}' > fastq.test2"
+    cmd3 = ["diff", "-s", "fastq.test1", "fastq.test2"]
+    subprocess.check_call(cmd1, shell=True)
+    subprocess.check_call(cmd2, shell=True)
+    test = subprocess.check_output(cmd3)
+    if test != 'Files fastq.test1 and fastq.test2 are identical\n':
+        print test
+        print "Error in checkPairedFastq(): FASTQ read identifiers do not match line by line"
+        sys.exit(1)
+    else:
+        print "FASTQ read identifiers match line by line."
+        os.remove("fastq.test1")
+        os.remove("fastq.test2")
+
+    # k = 0
+    # record_count = 0
+    # # Cycle through both files simultaneously
+    # with open(f1) as file_one, open(f2) as file_two:
+    #     for line_one, line_two in zip(file_one, file_two):
+    #         k += 1
+    #         if k % 4 == 1:
+    #             record_count += 1
+    #             if line_one.split("/")[0] != line_two.split("/")[0]:
+    #                 print("{0}\t{1}".format(line_one.strip(), line_two.strip()))
+    #                 sys.exit(10000)
+    # print "All FASTQ names match in paired order.\n"
     fo = open(output_file, 'w')
     fo.writelines('Test passed.\n')
     fo.close()

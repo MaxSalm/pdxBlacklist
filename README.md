@@ -15,7 +15,17 @@ To run the *pdxBlacklist* pipeline, execute the following:
 
     python pdxBlacklist.py --strain NOD_ShiLtJ
 
-where `--strain` specifies the mouse strain of interest.
+where `--strain` specifies the mouse strain of interest. Please select from the following:
+
+`129P2_OlaHsd, 129S1_SvImJ, 129S5SvEvBrd, AKR_J, A_J, BALB_cJ, BTBR_T__Itpr3tf_J, BUB_BnJ, C3H_HeH, C3H_HeJ, C57BL_10J, C57BL_6NJ, C57BR_cdJ, C57L_J, C58_J, CAST_EiJ, CBA_J, DBA_1J, DBA_2J, FVB_NJ, I_LnJ, KK_HiJ, LEWES_EiJ, LP_J, MOLF_EiJ, NOD_ShiLtJ, NZB_B1NJ, NZO_HlLtJ, NZW_LacJ, PWK_PhJ, RF_J, SEA_GnJ, SPRET_EiJ, ST_bJ, WSB_EiJ, ZALENDE_EiJ, JF1_MsJ, LG_J, SJL_J, SM_J`
+
+Additional options include:
+
+-   `--help` show this help message and exit
+-   `--strain` Mouse Genome Project strain (see <ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/>)\[string\]
+-   `--cores` Number of cores to use for bcbio \[integer\]
+-   `--debug` Debugging mode \[boolean\]
+-   `--config` Full path to filename of an optional BCBIO config file: for details, see <http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html>
 
 Features
 --------
@@ -41,7 +51,7 @@ Contribute
 Support
 -------
 
-If you are having issues, please let us know.
+If you are having issues, please let us know via the Issue Tracker and we will endeavour to resolve them as soon as possible.
 
 Known Bugs
 ----------

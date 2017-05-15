@@ -7,3 +7,5 @@ nature.csl
 pdxBlacklist.bib.bak
 pdxBlacklist.bib.sav
 README.Rmd
+test.yml
+BAM2FASTQ.py
