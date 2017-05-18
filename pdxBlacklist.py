@@ -40,7 +40,7 @@ parser.add_argument('--strain',   help='Mouse Genome Project strain (see ftp://f
                     type=str)
 parser.add_argument('--cores',   default = 1, help='Number of cores to use for bcbio [integer]',
                     type=int)
-parser.add_argument('--debug',  default = False, help='Debugging mode [boolean]',
+parser.add_argument('--debug',  default = False, help='Debugging mode [True/False]',
                     type=bool)
 parser.add_argument('--config',  default = None, help='Full path to filename of an optional BCBIO config file: for details, see http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html',
                     type=str)
@@ -441,26 +441,27 @@ def checkPairedFastq(input_file, output_file):
     f1 = os.path.join( WORKING_DIR, input_file.replace('.fq', '.1.fq') )
     f2 = os.path.join( WORKING_DIR, input_file.replace('.fq', '.2.fq') )
 
-    ## Test files are of equal length
-    t1 = ['wc', '-l', f1]
-    t1 = subprocess.check_output(t1)
-    t2 = ['wc', '-l', f2]
-    t2 = subprocess.check_output(t2)
-    if t1.split(' ')[0] != t2.split(' ')[0]:
-        print 'Error in checkPairedFastq(): Paired FASTQs are of different length.\n'
-        sys.exit(1)
-    else:
-        print 'FASTQ files are of equal length.'
+    ## Test files are of equal length, overkill
+    if False:
+        t1 = ['wc', '-l', f1]
+        t1 = subprocess.check_output(t1)
+        t2 = ['wc', '-l', f2]
+        t2 = subprocess.check_output(t2)
+        if t1.split(' ')[0] != t2.split(' ')[0]:
+            print 'Error in checkPairedFastq(): Paired FASTQs are of different length.\n'
+            sys.exit(1)
+        else:
+            print 'FASTQ files are of equal length.'
 
     ## Test FASTQ read identifiers match line by line
     # pattern = "'{split($0,a," + ''"/"' + "); print a[1]}'"
     cmd1 = "awk 'NR % 4 == 1' " + f1 + " | awk '{split($0,a,\"/\"); print a[1]}' > fastq.test1"
     cmd2 = "awk 'NR % 4 == 1' " + f2 + " | awk '{split($0,a,\"/\"); print a[1]}' > fastq.test2"
-    cmd3 = ["diff", "-s", "fastq.test1", "fastq.test2"]
+    cmd3 = ["diff", "-q", "fastq.test1", "fastq.test2"]
     subprocess.check_call(cmd1, shell=True)
     subprocess.check_call(cmd2, shell=True)
     test = subprocess.check_output(cmd3)
-    if test != 'Files fastq.test1 and fastq.test2 are identical\n':
+    if test != '':
         print test
         print "Error in checkPairedFastq(): FASTQ read identifiers do not match line by line"
         sys.exit(1)

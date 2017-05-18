@@ -27,6 +27,35 @@ Additional options include:
 -   `--debug` Debugging mode \[boolean\]
 -   `--config` Full path to filename of an optional BCBIO config file: for details, see <http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html>
 
+The automatically generated default BCBIO config file is:
+
+    details:
+    - algorithm:
+        aligner: bwa
+        save_diskspace: true
+        mark_duplicates: true
+        realign: false
+        recalibrate: false
+        remove_lcr: false
+        platform: illumina
+        quality_format: standard
+        variantcaller: vardict
+        indelcaller: false
+        phasing: false
+      analysis: variant2
+      description: NOD_ShiLtJ
+      files:
+      - /home/maxsalm/pdxBlacklist_output/NOD_ShiLtJ.1.fq
+      - /home/maxsalm/pdxBlacklist_output/NOD_ShiLtJ.2.fq
+      genome_build: hg19
+    fc_date: 2017/5/17
+    fc_name: NOD_ShiLtJ
+    resources:
+      tmp:
+        dir: /tmp
+    upload:
+      dir: ../final
+
 The pipeline output is written to disk in VCF format to a directory labelled by strain within the `pdxBlacklist_output` directory in your home directory (see BCBIO for more details on output directory structure).
 
 Features
