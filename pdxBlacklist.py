@@ -173,7 +173,7 @@ if bam_in not in files_on_server:
 
 # Check file is not already on disk
 ftp.sendcmd("TYPE i")    # Switch to Binary mode
-file_size = ftp.size(bam_in)   # Get size of file
+file_size = ftp.size(bam_in)   # Get size of file on FTP server
 ftp.sendcmd("TYPE i")    # Switch to ASCII mode
 
 test = False
@@ -181,6 +181,12 @@ if os.path.isfile(bam_in):
     local_file_info = os.path.getsize(bam_in)
     if local_file_info == file_size:
         test = True
+
+## Alternatively, test that the fastqcheck file is not on disk (i.e. that the FASTQ files have been generated)
+fastqcheck = bam_in.replace(".bam", ".fastqcheck")
+if os.path.isfile(fastqcheck):
+    print fastqcheck + ' file found: BAM will not be re-downloaded.\n'
+    test = True
 
 ## Continue using FTP for download
 if CONFIG['USE_FTP']:
@@ -273,6 +279,29 @@ def BAM2FASTQ(input_file = bam_in):
     # Iterate through all reads
 
 
+def blankAFile(file_path):
+    '''
+    truncate a file to zero bytes, and preserve its original modification time
+    Adapted from 'Keeping Large intermediate files' (http://www.ruffus.org.uk/faq.html)
+
+    :param file: Input file path
+    :return: None
+    '''
+    if os.path.exists(file_path):
+        timeInfo = os.stat(file_path) # retrieve current time stamp of the file
+        try:
+            f = open(file_path,'w')
+        except IOError:
+            pass
+        else:
+            f.truncate(0)
+            f.close()
+            # change the time of the file back to what it was
+            os.utime(file_path,(timeInfo.st_atime, timeInfo.st_mtime))
+            print file_path + ' blanked to save disk-space.'
+    else:
+        print 'blankAFile: ' + file_path + ' not found.'
+        sys.exit(1)
 
 
 ########################
@@ -305,6 +334,10 @@ def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
     else:
         print 'Sorted BAM not found.\n'
         sys.exit(1)
+
+    ## Remove the contents of input file, but keep a "ghost"
+    blankAFile(input_file)
+
 
 @follows(sortBAM)
 @transform(sortBAM, suffix(".sorted.bam"), ".fq")
@@ -367,7 +400,6 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
         print 'No valid method selected for FASTQ extraction.\n'
         sys.exit(1)
 
-
     ## Test output files exists
     f1 = output_files.replace('.fq', '.1.fq')
     f2 = output_files.replace('.fq', '.2.fq')
@@ -381,6 +413,9 @@ def bam2fastq(input_file, output_files, method = CONFIG['bam2fastq']):
     text_file = open(output_files, "w")
     text_file.write("Placeholder file.\n")
     text_file.close()
+
+    ## Remove the contents of input file, but keep a "ghost"
+    blankAFile(input_file)
 
 
 ### A FASTQ record parser by Heng Li - https://github.com/lh3/readfq
@@ -565,7 +600,7 @@ def bcbioConfig(input_file, output_file):
 
 
 
-@follows(bcbioConfig)
+@follows(checkPairedFastq)
 @transform(bcbioConfig, suffix(".yml"), ".bcbio.log")
 def bcbioRun(input_file, output_file, cores = CONFIG['CORES']):
     '''
