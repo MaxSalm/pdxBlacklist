@@ -71,12 +71,12 @@ Recommended Minimum System Requirements
 -   Storage: 1Tb
 -   CPU: 8 cores
 -   Memory: 30Gb
--   Software: R, Python (2.7), git
+-   Software: Python (2.7), git
 
 Installation
 ------------
 
-The install the *pdxBlacklist* pipeline, primarily relies on [Ruffus](http://www.ruffus.org.uk/), [bcbio-nextgen](http://bcbio-nextgen.readthedocs.io/en/latest/). To simplify package management, the `bioconda` package [manager](https://bioconda.github.io/index.html) is recommended. After installing `conda` and setting up the `bioconda` channel, please execute the following at the commandline:
+The install the *pdxBlacklist* pipeline, primarily relies on [Ruffus](http://www.ruffus.org.uk/) and [bcbio-nextgen](http://bcbio-nextgen.readthedocs.io/en/latest/). To simplify package management, the `bioconda` package [manager](https://bioconda.github.io/index.html) is recommended. After installing `conda` and setting up the `bioconda` channel, please execute the following at the commandline:
 
     ## Setup bioconda channel
     conda config --add channels conda-forge
