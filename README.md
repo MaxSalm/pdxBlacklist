@@ -64,14 +64,49 @@ Features
 -   A choice of mouse strains (currently 40)
 -   Diverse variant analysis pipelines
 
+Recommended Minimum System Requirements
+---------------------------------------
+
+-   Operating Systems: Linux
+-   Storage: 1Tb
+-   CPU: 8 cores
+-   Memory: 30Gb
+-   Software: R, Python (2.7), git
+
 Installation
 ------------
 
+The install the *pdxBlacklist* pipeline, primarily relies on [Ruffus](http://www.ruffus.org.uk/), [bcbio-nextgen](http://bcbio-nextgen.readthedocs.io/en/latest/). To simplify package management, the `bioconda` package [manager](https://bioconda.github.io/index.html) is recommended. After installing `conda` and setting up the `bioconda` channel, please execute the following at the commandline:
+
+    ## Setup bioconda channel
+    conda config --add channels conda-forge
+    conda config --add channels defaults
+    conda config --add channels r
+    conda config --add channels bioconda
+
+    ## BCBIO Variables
+    # Please ammend these as required
+    ROOT="/usr/local/share"
+    GENOME="hg19"
+    ALIGNER="bwa"
+
+    ## Install bcbio 
+    wget https://raw.github.com/chapmanb/bcbio-nextgen/master/scripts/bcbio_nextgen_install.py
+    python bcbio_nextgen_install.py $ROOT/bcbio --genomes $GENOME --aligners $ALIGNER --distribution ubuntu --tooldir=$ROOT/bcbio
+    bcbio_nextgen.py upgrade -u stable 
+
+    ### Install Ruffus
+    conda install ruffus=2.6.3
+
+    ### Install SRA Toolkit
+    conda install -c r r-xml=3.98_1.5 
+    conda install bioconductor-sradb=1.32.0
+    conda install sra-tools=2.8.1
+
+Runtime
+-------
+
 The scripts in this project have been developed and tested on an 8-core server with 30GB RAM running Ubuntu 14.04.5 LTS (GNU/Linux 3.19.0-74-generic x86\_64). A full run of the *SM\_J* strain completed in approximately two days.
-
-To install the *pdxBlacklist* pipeline, please run the following:
-
-    scripts/0_setup_bcbio.sh
 
 Contribute
 ----------
@@ -88,6 +123,11 @@ Known Bugs
 ----------
 
 1.  Mouse Genome Project BAMs are retrieved via FTP using the `ftplib` python package. At the end of file transfer of large files, `ftplib` occasionally [hangs](http://stackoverflow.com/questions/19692739/python-ftplib-hangs-at-end-of-transfer). If the BAM download is complete, then this problem can be resolved simply by stopping the the *pdxBlacklist* pipeline and re-starting it.
+
+Planned improvements
+--------------------
+
+1.  An option to use a pre-specified BAM on disk
 
 License
 -------
