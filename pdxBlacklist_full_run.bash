@@ -6,3 +6,7 @@ do
 echo "Processing strain: "$input
 python pdxBlacklist.py --strain $input --cores 8
 done
+
+
+
+# nohup python pdxBlacklist.py --strain 129P2_OlaHsd --cores 8 > 129P2_OlaHsd.log &

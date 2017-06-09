@@ -147,6 +147,7 @@ from ruffus import *  ## Pipeline manager, http://www.ruffus.org.uk/index.html
 
 
 ## Download section
+# Open an FTP connection
 if not args.debug:
     src_dir = 'ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/'
     ftp = ftplib.FTP('ftp-mouse.sanger.ac.uk')  # Open FTP connection
@@ -175,6 +176,7 @@ if bam_in not in files_on_server:
 ftp.sendcmd("TYPE i")    # Switch to Binary mode
 file_size = ftp.size(bam_in)   # Get size of file on FTP server
 ftp.sendcmd("TYPE i")    # Switch to ASCII mode
+ftp.quit()  # close FTP connection politely, stop timeout issues later caused by introducing wget step
 
 test = False
 if os.path.isfile(bam_in):
@@ -194,6 +196,21 @@ if CONFIG['USE_FTP']:
     if test:
         print 'File on disk: will not be re-downloaded.\n'
     else:
+        # Reopen FTP connection
+        if not args.debug:
+            src_dir = 'ftp://ftp-mouse.sanger.ac.uk/REL-1604-BAM/'
+            ftp = ftplib.FTP('ftp-mouse.sanger.ac.uk')  # Open FTP connection
+            ftp.login()  # Anonymous login
+            ftp.cwd('REL-1604-BAM')  # Change to relevant directory
+
+        else:
+            src_dir = 'ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/HG04093/alignment/'
+            ftp = ftplib.FTP('ftp.1000genomes.ebi.ac.uk')  # Open FTP connection
+            ftp.login()  # Anonymous login
+            ftp.cwd('vol1/ftp/phase3/data/HG04093/alignment/')  # Change to relevant directory
+
+
+        # Download
         print 'Downloading: ' + bam_in + '\n'
         ## Get BAI
         bai_file_local = open(bai_in, "wb")         # Open connection on disk
@@ -209,6 +226,9 @@ if CONFIG['USE_FTP']:
         bam_file_local.close()                      # Close connection on disk
         run_logger.info('Downloaded:' + bam_in)
         print 'Download complete\n'
+
+    ftp.quit()  # close FTP connection
+
 else:
     # Use wget to download files - this won't hang for larger files
     if test:
@@ -227,7 +247,6 @@ else:
         print 'Download complete\n'
 
 
-ftp.quit() # close FTP connection
 
 
 ### Misc helper functions
