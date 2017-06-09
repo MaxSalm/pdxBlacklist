@@ -2,6 +2,7 @@
 
 ## CLone the repository
 cd ~
+rm -rf pdxBlacklist
 git clone https://github.com/MaxSalm/pdxBlacklist.git
 
 
