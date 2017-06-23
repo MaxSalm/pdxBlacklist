@@ -9,3 +9,6 @@ pdxBlacklist.bib.sav
 README.Rmd
 test.yml
 BAM2FASTQ.py
+InSilicoPdx.bash
+checkCOSMIC.R
+scripts/getSRAdata.R
