@@ -80,6 +80,8 @@ def getSRA(srr, output, trim=True):
             EXE = "cutadapt"
             exe_c = [EXE, "-u", "-1", "-o", f1, "-p", f2, srr_1, srr_2]
             os.system(' '.join(exe_c))
+            os.remove(srr_1)
+            os.remove(srr_2)
         else:
             os.rename(srr_1, f1)
             os.rename(srr_2, f2)
@@ -116,11 +118,18 @@ def createPDx():
     exe_c = [EXE, ROOT+"hsub2.fastq", ROOT+"msub2.fastq", ">", ROOT + "_2.fastq"]
     os.system(' '.join(exe_c))
 
+    # Compress
+    EXE = "gzip"
+    exe_c = [EXE, ROOT + "_1.fastq"]
+    os.system(' '.join(exe_c))
+    exe_c = [EXE, ROOT + "_2.fastq"]
+    os.system(' '.join(exe_c))
+
     ## CLean-up
-    # os.remove(ROOT+"hsub1.fastq")
-    # os.remove(ROOT+"hsub2.fastq")
-    # os.remove(ROOT+"msub1.fastq")
-    # os.remove(ROOT+"msub2.fastq")
+    os.remove(ROOT+"hsub1.fastq")
+    os.remove(ROOT+"hsub2.fastq")
+    os.remove(ROOT+"msub1.fastq")
+    os.remove(ROOT+"msub2.fastq")
 
 if __name__ == '__main__':
     getSRA(srr="ERR194147", output="NA12878", trim=True)
