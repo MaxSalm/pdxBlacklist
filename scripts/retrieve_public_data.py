@@ -32,6 +32,7 @@ if USE_CMDLINE:
                                      prog='Generate an in silico PDx WGS run using SRA data',
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', type=int)
+    parser.add_argument('-y', help = 'Number of reads in final output, in Millions', type=int)
 
     ## Gather arguments
     args = parser.parse_args()
@@ -44,7 +45,31 @@ print "\n\tProportion of human reads:" + str(PROPORTION)
 ########################
 ### Global Variables ###
 ########################
-FINALYIELD = 10000 # Number of reads in final file
+FINALYIELD = y * 1000000 # Number of reads in final file
+
+
+##################
+### Gatekeeper ###
+##################
+## Test for dependencies
+
+def testDependencies():
+    '''
+    Trivial function to test for system dependencies
+
+    :return:
+    '''
+    EXES = ["fastq-dump1", "cutadapt", "seqtk"]
+    for i in range(len(EXES)):
+        exe_h = ["which", EXE]
+        test = os.system(' '.join(exe_h))
+        if test != "0":
+            print "System dependency not found:" + EXES[i]
+            sys.exit(1)
+
+testDependencies()
+
+
 
 #################
 ### Functions ###
@@ -135,6 +160,7 @@ if __name__ == '__main__':
     getSRA(srr="ERR194147", output="NA12878", trim=True)
     getSRA(srr="ERR118255", output="NODShiLtJ", trim=False)
     createPDx()
+    cat("retrieve_public_data.py complete.\n")
 
 
 
