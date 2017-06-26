@@ -81,9 +81,11 @@ def testDependencies():
     ## Off PATH
     EXES = ["seqtk"]
     for i in range(len(EXES)):
-        finder = ['find', '~', '-name', EXES[i]]
-        test = os.system(' '.join(finder))
-        if test != 0:
+        home = os.path.expanduser('~')
+        finder = ['find', home, '-name', EXES[i]]
+        process = Popen(finder, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = process.communicate()
+        if stdout == '':
             print "System dependency not found:" + EXES[i]
             sys.exit(1)
 
