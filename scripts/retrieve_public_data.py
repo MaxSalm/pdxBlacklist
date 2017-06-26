@@ -30,6 +30,7 @@ USE_CMDLINE = True ## Simple toggle to simplify debugging
 if USE_CMDLINE:
     parser = argparse.ArgumentParser(prog='retrieve_public_data.py',
                                      description='Generate an in silico PDx WGS run using SRA data',
+                                     usage='python retrieve_public_data.py -p 0.4 -y 1'
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', type=int, required=True)
     parser.add_argument('-y', help = 'Number of reads in final output, in Millions', type=int, required=True)
@@ -45,7 +46,7 @@ else:
 
 
 print "\n\tProportion of human reads:" + str(PROPORTION)
-print "\n\tNumber of reads:" + str(PROPORTION)
+print "\n\tNumber of reads:" + str(FINALYIELD)
 
 ########################
 ### Global Variables ###
@@ -82,7 +83,6 @@ def testDependencies():
     for i in range(len(EXES)):
         finder = ['find', '~', '-name', EXES[i]]
         test = os.system(' '.join(finder))
-        print test
         if test != 0:
             print "System dependency not found:" + EXES[i]
             sys.exit(1)
