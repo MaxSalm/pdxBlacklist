@@ -133,7 +133,7 @@ def getSRA(srr, output, trim=True):
             os.rename(srr_1, f1)
             os.rename(srr_2, f2)
     else:
-        print f1 + f2 "found on disk."
+        print f1 + f2 + "found on disk."
 
     return None
 
