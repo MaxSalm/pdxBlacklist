@@ -32,13 +32,13 @@ if USE_CMDLINE:
                                      description='Generate an in silico PDx WGS run using SRA data',
                                      usage='python retrieve_public_data.py -p 0.4 -y 1'
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', type=int, required=True)
-    parser.add_argument('-y', help = 'Number of reads in final output, in Millions', type=int, required=True)
+    parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', required=True)
+    parser.add_argument('-y', help = 'Number of reads in final output, in Millions', required=True)
 
     ## Gather arguments
     args = parser.parse_args()
     PROPORTION = float(args.p) / 100.0
-    FINALYIELD = args.y * 1000000  # Number of reads in final file
+    FINALYIELD = float(args.y) * 1000000  # Number of reads in final file
 
 else:
     PROPORTION = 0.5
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     getSRA(srr="ERR194147", output="NA12878", trim=True)
     getSRA(srr="ERR118255", output="NODShiLtJ", trim=False)
     createPDx()
-    cat("retrieve_public_data.py complete.\n")
+    print "retrieve_public_data.py complete."
 
 
 
