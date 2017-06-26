@@ -31,21 +31,26 @@ if USE_CMDLINE:
     parser = argparse.ArgumentParser(description='Generate an in silico PDx WGS run using SRA data',
                                      prog='Generate an in silico PDx WGS run using SRA data',
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', type=int)
-    parser.add_argument('-y', help = 'Number of reads in final output, in Millions', type=int)
+    parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', type=int, required=True)
+    parser.add_argument('-y', help = 'Number of reads in final output, in Millions', type=int, required=True)
 
     ## Gather arguments
     args = parser.parse_args()
     PROPORTION = float(args.p) / 100.0
+    FINALYIELD = args.y * 1000000  # Number of reads in final file
+
 else:
     PROPORTION = 0.5
+    FINALYIELD = 10000
+
 
 print "\n\tProportion of human reads:" + str(PROPORTION)
+print "\n\tNumber of reads:" + str(PROPORTION)
 
 ########################
 ### Global Variables ###
 ########################
-FINALYIELD = y * 1000000 # Number of reads in final file
+
 
 
 ##################
