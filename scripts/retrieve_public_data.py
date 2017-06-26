@@ -28,8 +28,8 @@ import argparse
 USE_CMDLINE = True ## Simple toggle to simplify debugging
 
 if USE_CMDLINE:
-    parser = argparse.ArgumentParser(description='Generate an in silico PDx WGS run using SRA data',
-                                     prog='Generate an in silico PDx WGS run using SRA data',
+    parser = argparse.ArgumentParser(prog='retrieve_public_data.py',
+                                     description='Generate an in silico PDx WGS run using SRA data',
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', type=int, required=True)
     parser.add_argument('-y', help = 'Number of reads in final output, in Millions', type=int, required=True)
