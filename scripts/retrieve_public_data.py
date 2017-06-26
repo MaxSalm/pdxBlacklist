@@ -59,11 +59,26 @@ def testDependencies():
 
     :return:
     '''
-    EXES = ["fastq-dump1", "cutadapt", "seqtk"]
+    ## Dependencies
+    from subprocess import Popen, PIPE
+
+    ## On PATH
+    EXES = ["fastq-dump", "cutadapt"]
     for i in range(len(EXES)):
-        exe_h = ["which", EXE]
-        test = os.system(' '.join(exe_h))
-        if test != "0":
+        exe_h = ["which", EXES[i]]
+        process = Popen(exe_h, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = process.communicate()
+        if stdout == '':
+            print "System dependency not found:" + EXES[i]
+            sys.exit(1)
+
+    ## Off PATH
+    EXES = ["seqtk"]
+    for i in range(len(EXES)):
+        finder = ['find', '~', '-name', EXES[i]]
+        test = os.system(' '.join(finder))
+        print test
+        if test != 0:
             print "System dependency not found:" + EXES[i]
             sys.exit(1)
 
