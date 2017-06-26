@@ -38,7 +38,7 @@ if USE_CMDLINE:
     ## Gather arguments
     args = parser.parse_args()
     PROPORTION = float(args.p) / 100.0
-    FINALYIELD = float(args.y) * 1000000  # Number of reads in final file
+    FINALYIELD = int(float(args.y) * 1000000)  # Number of reads in final file
 
 else:
     PROPORTION = 0.5
