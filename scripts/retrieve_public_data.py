@@ -30,7 +30,7 @@ USE_CMDLINE = True ## Simple toggle to simplify debugging
 if USE_CMDLINE:
     parser = argparse.ArgumentParser(prog='retrieve_public_data.py',
                                      description='Generate an in silico PDx WGS run using SRA data',
-                                     usage='python retrieve_public_data.py -p 0.4 -y 1'
+                                     usage='python retrieve_public_data.py -p 0.4 -y 1',
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-p', help = 'Percentage of human reads in final output [0-100]', required=True)
     parser.add_argument('-y', help = 'Number of reads in final output, in Millions', required=True)
