@@ -91,7 +91,20 @@ def testDependencies():
 
 testDependencies()
 
+def removeFileExists():
+    '''
+    Do the target output files exist on disk?
+    :return:
+    '''
+    ROOT = "pdx_synthetic_" + str(args.p)
+    f1 = ROOT + "_1.fastq"
+    f2 = ROOT + "_2.fastq"
+    if os.path.exists(f1) or os.path.exists(f2):
+        print 'Previous run being erased from disk.\n'
+        os.remove(f1)
+        os.remove(f2)
 
+removeFileExists()
 
 #################
 ### Functions ###
