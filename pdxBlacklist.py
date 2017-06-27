@@ -44,6 +44,8 @@ parser.add_argument('--debug',  default = False, help='Debugging mode [True/Fals
                     type=bool)
 parser.add_argument('--config',  default = None, help='Full path to filename of an optional BCBIO config file: for details, see http://bcbio-nextgen.readthedocs.io/en/latest/contents/configuration.html',
                     type=str)
+parser.add_argument('--fq1',  default = None, help='Full path to filename of first file of paired FASTQ files (optional, overrides --strain)', type=str)
+parser.add_argument('--fq2',  default = None, help='Full path to filename of second file of paired FASTQ files (optional, overrides --strain)', type=str)
 
 # Retrieve options from command line
 args = parser.parse_args()
@@ -51,6 +53,9 @@ args = parser.parse_args()
 ###################
 ### Gatekeepers ###
 ###################
+
+
+
 ## Available strains at Mouse Genome Project (2017)
 strains = ['129P2_OlaHsd', '129S1_SvImJ', '129S5SvEvBrd', 'AKR_J', 'A_J', 'BALB_cJ', 'BTBR_T__Itpr3tf_J', 'BUB_BnJ',
            'C3H_HeH', 'C3H_HeJ', 'C57BL_10J', 'C57BL_6NJ', 'C57BR_cdJ', 'C57L_J', 'C58_J', 'CAST_EiJ', 'CBA_J',
