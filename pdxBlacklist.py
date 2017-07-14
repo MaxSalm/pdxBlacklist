@@ -53,7 +53,7 @@ args = parser.parse_args()
 ###################
 ### Gatekeepers ###
 ###################
-
+## TODO: activate --fq1/--fq2 option
 
 
 ## Available strains at Mouse Genome Project (2017)

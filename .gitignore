@@ -12,3 +12,7 @@ BAM2FASTQ.py
 InSilicoPdx.bash
 checkCOSMIC.R
 scripts/getSRAdata.R
+scripts/in_silico_samples_plot.R
+scripts/in_silico_samples.csv
+cabios_word_temp/Sample.pdf
+cabios_word_temp/MS Word Template Bioinformatics.dotx
