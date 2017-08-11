@@ -62,11 +62,19 @@ else:
 if not os.path.exists(BAM):
     print "BAM not found:" + str(BAM)
 
-
 if not os.path.exists(VCF):
     print "VCF not found:" + str(VCF)
 
+## Open BAM & VCF
+input_vcf = pysam.VariantFile(VCF)
+input_bam = pysam.AlignmentFile(BAM, "rb")
+if not input_bam.is_bam:
+    print "File is not a VCF:" + str(VCF)
+    sys.exit(1)
 
+if not input_vcf.is_vcf:
+    print "File is not a VCF:" + str(VCF)
+    sys.exit(1)
 
 
 
@@ -87,7 +95,7 @@ def isSNP(x):
         return False
 
 
-def assignReadRefAlt(x, bam = input_bam):
+def assignReadRefAlt(x, bam):
     '''
     Given a VCF record and a bam, return the read names that support either the REF or ALT alleles
 
@@ -216,16 +224,6 @@ def writeOutput(x):
 ###########
 
 if __name__ == '__main__':
-    ## Open BAM & VCF
-    input_vcf = pysam.VariantFile(VCF)
-    input_bam = pysam.AlignmentFile(BAM, "rb")
-    if not input_bam.is_bam:
-        print "File is not a VCF:" + str(VCF)
-        sys.exit(1)
-
-    if not input_vcf.is_vcf:
-        print "File is not a VCF:" + str(VCF)
-        sys.exit(1)
     tmp = countHumanMouse()
     writeOutput(x = tmp)
     ## Close BAM & VCF

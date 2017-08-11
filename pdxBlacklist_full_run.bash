@@ -4,6 +4,7 @@
 # cd ~
 # rm -rf pdxBlacklist
 # git clone https://github.com/MaxSalm/pdxBlacklist.git
+# cd pdxBlacklist
 # git pull https://github.com/MaxSalm/pdxBlacklist.git
 
 ## Run pdxBlacklist for all avaialable strains (add NOD_ShiLtJ SM_J 129P2_OlaHsd)
