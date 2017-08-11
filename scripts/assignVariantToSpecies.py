@@ -68,13 +68,7 @@ if not os.path.exists(VCF):
 
 
 
-if not input_bam.is_bam:
-    print "File is not a VCF:" + str(VCF)
-    sys.exit(1)
 
-if not input_vcf.is_vcf:
-    print "File is not a VCF:" + str(VCF)
-    sys.exit(1)
 
 #################
 ### Functions ###
@@ -225,6 +219,13 @@ if __name__ == '__main__':
     ## Open BAM & VCF
     input_vcf = pysam.VariantFile(VCF)
     input_bam = pysam.AlignmentFile(BAM, "rb")
+    if not input_bam.is_bam:
+        print "File is not a VCF:" + str(VCF)
+        sys.exit(1)
+
+    if not input_vcf.is_vcf:
+        print "File is not a VCF:" + str(VCF)
+        sys.exit(1)
     tmp = countHumanMouse()
     writeOutput(x = tmp)
     ## Close BAM & VCF
