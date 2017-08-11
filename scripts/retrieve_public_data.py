@@ -187,7 +187,7 @@ def createPDx():
     exe_c = [EXE, ROOT + "_2.fastq"]
     os.system(' '.join(exe_c))
 
-    ## CLean-up
+    ## Clean-up
     os.remove(ROOT+"hsub1.fastq")
     os.remove(ROOT+"hsub2.fastq")
     os.remove(ROOT+"msub1.fastq")
