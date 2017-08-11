@@ -26,7 +26,7 @@ import pysam
 ### Interface ###
 #################
 
-USE_CMDLINE = False ## Simple toggle to simplify debugging
+USE_CMDLINE = True ## Simple toggle to simplify debugging
 
 if USE_CMDLINE:
     parser = argparse.ArgumentParser(prog='assignVariantToSpecies.py',
