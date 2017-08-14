@@ -328,9 +328,36 @@ def blankAFile(file_path):
         sys.exit(1)
 
 
+def diskUsage(path):
+    """Return disk usage statistics about the given path. Inspired by:
+    https://stackoverflow.com/questions/4274899/get-actual-disk-space
+
+    Returned values is a named tuple with attributes 'total', 'used' and
+    'free', which are the amount of total, used and free space, in bytes.
+    """
+    st = os.statvfs(path)
+    free = st.f_bavail * st.f_frsize
+    total = st.f_blocks * st.f_frsize
+    used = (st.f_blocks - st.f_bfree) * st.f_frsize
+    return {'total':total, 'used':used, 'free':free}
+
 ########################
 ### Convert to FASTQ ###
 ########################
+### Before beginning, check there is enough memory on disk
+du = diskUsage('/')
+local_file_info = os.path.getsize(bam_in)
+too_little_memory = du["free"] / float(local_file_info)
+if too_little_memory < 2:
+    print "Memory available on disk (bytes):" + str(du["free"])
+    print "Size of BAM (bytes):"  + str(local_file_info)
+    print "Pipeline aborted: We recommend 2x the size of the BAM to be availble on disk for pdxBlacklist pipeline completion."
+    sys.exit(1)
+
+
+
+
+
 @transform(bam_in, suffix(".bam"), ".sorted.bam")
 def sortBAM(input_file, output_file, cores=CONFIG['CORES']):
     '''
