@@ -108,6 +108,11 @@ Runtime
 
 The scripts in this project have been developed and tested on an 8-core server with 30GB RAM running Ubuntu 14.04.5 LTS (GNU/Linux 3.19.0-74-generic x86\_64). A full run of the *SM\_J* strain completed in approximately two days.
 
+Pre-processed blacklist
+-----------------------
+
+A blacklist was created by processing whole genome sequencing data generated for the Mouse Genomes Project for 18 mouse strains<sup>3</sup>. Alignment to the hg19 genome build was performed by BWA-MEM, and variants were called using VarDict: this generated a false posi-tive dataset comprising 11,119,424 SNVs, 13,77,355 indels and 2,305,881 complex variants. The merged VCF file (merged\_blacklist.vcf.gz) can be downloaded from: <https://download.genego.com/>
+
 Contribute
 ----------
 
@@ -128,6 +133,7 @@ Planned improvements
 --------------------
 
 1.  An option to use a pre-specified BAM on disk
+2.  An option to process an Sequence Read Archive (SRA) submission directly
 
 License
 -------
@@ -136,6 +142,8 @@ The project is licensed under the GPL license.
 
 Citation
 --------
+
+pdxBlacklist: A tool to identify artefactual variants in patient-derived xenograft samples Max Salm, Sven-Eric Schelhorn, Lee Lancashire and Thomas Grombacher Manuscript under review
 
 References
 ----------
