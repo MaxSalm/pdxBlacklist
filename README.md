@@ -145,7 +145,7 @@ The project is licensed under the GPL license.
 Citation
 --------
 
-pdxBlacklist: A tool to identify artefactual variants in patient-derived xenograft samples Max Salm, Sven-Eric Schelhorn, Lee Lancashire and Thomas Grombacher bioRxiv 180752; doi: <https://doi.org/10.1101/180752> <https://www.biorxiv.org/content/early/2017/08/25/180752>
+pdxBlacklist: Identifying artefactual variants in patient-derived xenograft samples Max Salm, Sven-Eric Schelhorn, Lee Lancashire, Thomas Grombacher bioRxiv 180752; doi: <https://doi.org/10.1101/180752> <https://www.biorxiv.org/content/early/2017/08/25/180752>
 
 References
 ----------
